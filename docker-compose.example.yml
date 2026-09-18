@@ -1,0 +1,61 @@
+# Example: running CogNote as a container.
+#
+# NOT used automatically — `docker compose` only picks up compose.yaml,
+# compose.yml, docker-compose.yaml or docker-compose.yml, so this file can live
+# in the repo without hijacking anything. To use it:
+#
+#   cp docker-compose.example.yml docker-compose.yml
+#   cp .env.example .env.local          # then fill it in
+#   docker compose --env-file .env.local up -d --build
+#
+# WHY --env-file: compose substitutes ${...} from the shell environment and from
+# a file called `.env` — NOT from a service's `env_file:`. `env_file:` sets the
+# CONTAINER's environment and is a separate mechanism. Without --env-file the
+# build args below would resolve to empty strings, the image would build
+# successfully, and the browser bundle would point at nothing.
+#
+# Variables the app reads (see .env.example for the full list):
+#   NEXT_PUBLIC_SUPABASE_URL        public  — inlined into the browser bundle
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY   public  — inlined into the browser bundle
+#   SUPABASE_SERVICE_ROLE_KEY       secret  — server-only, bypasses RLS
+#   TOKEN_ENCRYPTION_KEY            secret  — encrypts stored portal tokens
+#   CRON_SECRET                     secret  — authorises /api/cron/* endpoints
+#   EMAIL_PROVIDER, RESEND_API_KEY, EMAIL_FROM_ADDRESS
+#                                   optional — unset, the app runs and sends
+#                                   nothing, which is a valid configuration
+
+services:
+  app:
+    build:
+      context: .
+      # NEXT_PUBLIC_* are NOT runtime settings. Next inlines them into the
+      # client bundle during `next build`, so they have to be present as BUILD
+      # args. Changing them needs a rebuild, not a restart.
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?set it in .env.local, see --env-file above}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?set it in .env.local, see --env-file above}
+      # Prefer a prebuilt image in production:
+      #   image: ghcr.io/OWNER/cognote:latest
+      # ...and drop `build:` entirely.
+
+    # Secrets are injected at runtime. They are never baked into an image layer:
+    # image layers are readable by anyone who can pull the image.
+    env_file:
+      - .env.local
+
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+    restart: unless-stopped
+
+    # The image already runs as uid 1001. These keep it that way, so a
+    # compromised process cannot gain privileges or write to the filesystem.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+
+    logging:
+      driver: journald
