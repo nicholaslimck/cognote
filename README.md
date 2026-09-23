@@ -217,6 +217,29 @@ Local webhook forwarding: `stripe listen --forward-to localhost:3000/api/webhook
 
 Platform Hosted Pro billing (restricted platform keys, separate from teacher tuition): [ARCHITECTURE.md](ARCHITECTURE.md#deployment-modes).
 
+### Deploy with Docker
+
+For a container deploy instead of Vercel:
+
+1. Create a Supabase project and push the schema (steps 1–3 above).
+2. Copy the compose example and env template, then fill in `.env.local`:
+
+   ```bash
+   cp docker-compose.example.yml docker-compose.yml
+   cp .env.example .env.local
+   # edit .env.local — see comments in .env.example
+   ```
+
+3. Build and start:
+
+   ```bash
+   docker compose --env-file .env.local up -d --build
+   ```
+
+`--env-file` is required: Compose substitutes `${...}` build args from it, while `env_file:` only injects the container's runtime environment. Secrets stay in `.env.local` and are never baked into image layers.
+
+`NEXT_PUBLIC_*` values are inlined into the client bundle at **build** time — changing them needs a rebuild (`up -d --build`), not just a restart. Full variable reference and further notes live in [docker-compose.example.yml](docker-compose.example.yml).
+
 ### Hosted vs self-host
 
 | | |
