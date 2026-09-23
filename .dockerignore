@@ -24,6 +24,7 @@ playwright-report
 test-results
 notes
 *.log
+*.tsbuildinfo
 
 # repo docs, Supabase SQL, and tooling configs — not needed for next build
 supabase
