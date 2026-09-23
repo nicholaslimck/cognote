@@ -8,6 +8,9 @@
 #   cp .env.example .env.local          # then fill it in
 #   docker compose --env-file .env.local up -d --build
 #
+# Pass --env-file .env.local to EVERY compose command (ps, logs, stop, …).
+# ${...:?} is interpolated at parse time, so bare `docker compose ps` fails too.
+#
 # WHY --env-file: compose substitutes ${...} from the shell environment and from
 # a file called `.env` — NOT from a service's `env_file:`. `env_file:` sets the
 # CONTAINER's environment and is a separate mechanism. Without --env-file the

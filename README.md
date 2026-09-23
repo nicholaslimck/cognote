@@ -189,7 +189,8 @@ Connect the GitHub repo and set:
 | `NEXT_PUBLIC_BETA_ONLY` | Optional | `true` shows beta code + waitlist UI (redeploy after change) |
 | `BETA_ACCESS_CODE` | Optional | Server-only secret when beta is on. **Never** `NEXT_PUBLIC_*` |
 | `COGNOTE_DEPLOYMENT` | Official hosted only | Omit / `self_hosted` on your deploy. `hosted` only on cognote.studio for Free/Pro limits |
-| `HOSTED_*` / `HOSTED_STRIPE_*` / `STRIPE_PRICE_ID_PRO_MONTHLY` / `NEXT_PUBLIC_SITE_URL` | Official hosted only | Platform Hosted Pro — see `.env.example` |
+| `HOSTED_*` / `HOSTED_STRIPE_*` / `STRIPE_PRICE_ID_PRO_MONTHLY` | Official hosted only | Platform Hosted Pro — intentionally omitted from `.env.example` (cognote.studio only) |
+| `NEXT_PUBLIC_SITE_URL` | Optional | Absolute origin for cron-built links; see `.env.example` |
 
 Use **cloud** Supabase keys on Vercel, not Docker local keys.
 
@@ -236,7 +237,7 @@ For a container deploy instead of Vercel:
    docker compose --env-file .env.local up -d --build
    ```
 
-`--env-file` is required: Compose substitutes `${...}` build args from it, while `env_file:` only injects the container's runtime environment. Secrets stay in `.env.local` and are never baked into image layers.
+`--env-file` is required: Compose substitutes `${...}` build args from it, while `env_file:` only injects the container's runtime environment. Pass it to **every** compose command (`up`, `ps`, `logs`, `stop`, …) — `${VAR:?}` is interpolated at parse time, so bare `docker compose ps` fails without it. Secrets stay in `.env.local` and are never baked into image layers.
 
 `NEXT_PUBLIC_*` values are inlined into the client bundle at **build** time — changing them needs a rebuild (`up -d --build`), not just a restart. Full variable reference and further notes live in [docker-compose.example.yml](docker-compose.example.yml).
 
