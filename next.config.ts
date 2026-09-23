@@ -15,7 +15,9 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Standalone for container builds. Vercel injects a deployment adapter that
+  // breaks with standalone on Next 16.3.x (vercel/next.js#96646) — skip it there.
+  output: process.env.VERCEL ? undefined : "standalone",
   turbopack: {
     root: projectRoot,
   },
