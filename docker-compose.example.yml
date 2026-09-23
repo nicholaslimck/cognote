@@ -57,5 +57,7 @@ services:
     tmpfs:
       - /tmp
 
-    logging:
-      driver: journald
+    # Logging: leave unset to use the engine default (works on Docker Desktop
+    # for macOS/Windows). On Linux with systemd you can opt into the journal:
+    #   logging:
+    #     driver: journald
