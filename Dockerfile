@@ -23,6 +23,12 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
     NEXT_TELEMETRY_DISABLED=1
 
+# Compose uses ${VAR:?} fail-fast, but a bare `docker build .` with no
+# --build-arg would otherwise succeed and bake an empty URL into the bundle.
+RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" \
+    && test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+    || { echo "error: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY build-args are required" >&2; exit 1; }
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
