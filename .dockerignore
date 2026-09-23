@@ -24,3 +24,10 @@ playwright-report
 test-results
 notes
 *.log
+
+# repo docs, Supabase SQL, and tooling configs — not needed for next build
+supabase
+scripts
+vitest.config.ts
+playwright.config.ts
+*.md
