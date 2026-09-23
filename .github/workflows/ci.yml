@@ -15,6 +15,8 @@ on:
 
 permissions:
   contents: read
+  # Required by dorny/paths-filter on pull_request (GET /pulls/{n}/files).
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
