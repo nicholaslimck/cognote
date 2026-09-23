@@ -51,7 +51,7 @@ jobs:
 
       - name: Check Docker-relevant paths
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             docker:
@@ -61,6 +61,8 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - 'next.config.ts'
+              - 'tsconfig.json'
+              - 'postcss.config.mjs'
               - 'proxy.ts'
               - 'app/**'
               - 'lib/**'
